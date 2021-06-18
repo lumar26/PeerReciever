@@ -1,3 +1,5 @@
+//RECIEVER
+
 package sample;
 
 import javafx.application.Application;
@@ -10,26 +12,25 @@ import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 
 import javax.sound.sampled.*;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 
 public class Main extends Application {
 
-    private static int port = 7000;
+    private static int port;
 
     @Override
     public void init() throws Exception {
         super.init();
+        this.port = 7000;
     }
 
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         primaryStage.setTitle("Peer reciever");
         BorderPane root = new BorderPane();
 
@@ -39,21 +40,31 @@ public class Main extends Application {
         MediaView view = new MediaView(audioPlayer);
 
         Button btnPlay = new Button("Play");
-            btnPlay.setOnAction(e -> {
-                try {
-                    playAudio();
-                } catch (SocketException socketException) {
-                    socketException.printStackTrace();
-                } catch (Exception exception){
-                    System.out.println("Došlo je do greške pri reprodukovanju audia");
-                    exception.printStackTrace();
-                }
-            });
+        btnPlay.setOnAction(e -> {
+            try {
+                playAudio();
+            } catch (SocketException socketException) {
+                socketException.printStackTrace();
+            } catch (Exception exception) {
+                System.out.println("Došlo je do greške pri reprodukovanju audia");
+                exception.printStackTrace();
+            }
+        });
 
+        Button btnStop = new Button("Stop reproduction");
+        btnStop.setOnAction(e -> {
+            stopAudio();
+        });
         root.setCenter(btnPlay);
+        root.setBottom(btnStop);
+
 
         primaryStage.setScene(new Scene(root, 300, 275));
         primaryStage.show();
+    }
+
+    private void stopAudio() {
+
     }
 
     private void playAudio() throws IOException, LineUnavailableException, UnsupportedAudioFileException, SocketException {
@@ -72,7 +83,7 @@ public class Main extends Application {
         byte[] recieveBuffer = new byte[1024 * framesize]; //i ovde bi trebalo da nam se posalje koja je velicina
         byte[] confirmationBuffer = "OK".getBytes();
 
-        while(true) {//ovde bi bilo dobro da posiljalac posalje prvo kolko je veliki fajl, da bismo znali dokle vrtimo petlju, ili tako nesto
+        while (true) {//ovde bi bilo dobro da posiljalac posalje prvo kolko je veliki fajl, da bismo znali dokle vrtimo petlju, ili tako nesto
 //            System.out.println("Krecemo da primamo pakete sa mreze");
             DatagramPacket recievePacket = new DatagramPacket(recieveBuffer, recieveBuffer.length);
             try {
